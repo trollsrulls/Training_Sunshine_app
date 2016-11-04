@@ -92,8 +92,8 @@ public final class BuildUtils {
         for (int i = 0; i < weatherArray.length(); i++) {
             JSONObject dayForecast = weatherArray.getJSONObject(i);
 
-            calendar.add(GregorianCalendar.DATE, 1);
             String day = simpleDateFormat.format(calendar.getTime());
+            calendar.add(GregorianCalendar.DATE, 1);
 
             // Whether it is array which should contain minimum one element. So we don't have check for length here.
             JSONObject weatherObject = dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
@@ -107,10 +107,6 @@ public final class BuildUtils {
 
             // For now, using the format "Day, description, hi/low"
             resultStrs[i] = day + " - " + description + " - " + highAndLow;
-        }
-
-        for (String entry : resultStrs) {
-            Log.v(LOG_TAG, "Forecast entry: " + entry);
         }
         return resultStrs;
     }
