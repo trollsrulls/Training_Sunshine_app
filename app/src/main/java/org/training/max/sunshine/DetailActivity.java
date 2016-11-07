@@ -1,5 +1,6 @@
 package org.training.max.sunshine;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,17 +9,26 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+/**
+ * Activity for representing detailed forecast for specified day
+ */
 public class DetailActivity extends AppCompatActivity {
+
+    /**
+     * Default constructor
+     */
+    public DetailActivity() {
+        // This constructor is intentionally empty. Nothing special is needed here.
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.activity_detail, new PlaceholderFragment())
-                    .commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.activity_detail, new DetailFragment()).commit();
         }
     }
 
@@ -39,6 +49,7 @@ public class DetailActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
@@ -48,14 +59,26 @@ public class DetailActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class DetailFragment extends Fragment {
 
-        public PlaceholderFragment() {
+        /**
+         * Default constructor
+         */
+        public DetailFragment() {
+            // This constructor is intentionally empty. Nothing special is needed here.
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            Intent intent = getActivity().getIntent();
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+                String forecastString = intent.getStringExtra(Intent.EXTRA_TEXT);
+                TextView textViewForecast = (TextView) rootView.findViewById(R.id.detail_textview);
+                textViewForecast.setText(forecastString);
+            }
+
             return rootView;
         }
     }

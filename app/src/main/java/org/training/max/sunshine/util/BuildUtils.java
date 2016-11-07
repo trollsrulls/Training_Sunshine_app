@@ -1,7 +1,6 @@
 package org.training.max.sunshine.util;
 
 import android.net.Uri;
-import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
