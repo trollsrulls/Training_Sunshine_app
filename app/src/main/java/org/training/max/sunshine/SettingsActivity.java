@@ -15,8 +15,10 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
+import android.view.MenuItem;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -123,6 +125,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
@@ -169,6 +180,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_units_key)));
         }
     }
 

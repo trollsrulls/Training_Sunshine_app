@@ -3,22 +3,12 @@ package org.training.max.sunshine.util;
 import android.net.Uri;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.training.max.sunshine.BuildConfig;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 
 /**
  * Utility class with methods for building some data.
  */
 public final class BuildUtils {
-
-    private static final String LOG_TAG = BuildUtils.class.getSimpleName();
 
     private static final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
     private static final String QUERY_PARAM = "q";
@@ -26,13 +16,6 @@ public final class BuildUtils {
     private static final String UNITS_PARAM = "units";
     private static final String DAYS_PARAM = "cnt";
     private static final String APPID_PARAM = "APPID";
-
-    private static final String OWM_LIST = "list";
-    private static final String OWM_WEATHER = "weather";
-    private static final String OWM_TEMPERATURE = "temp";
-    private static final String OWM_MAX = "max";
-    private static final String OWM_MIN = "min";
-    private static final String OWM_DESCRIPTION = "main";
 
     /**
      * We can't instantiate the utility class.
@@ -54,9 +37,12 @@ public final class BuildUtils {
      */
     public static String buildOpenWeatherMapUrlString(String location) {
         if (location != null && !StringUtils.isEmpty(location.trim())) {
-            // Temp declaration.
+            // We use json format for our app
             final String format = "json";
+            // We always get weather forecast in metric units
             final String units = "metric";
+            // TODO: Maybe should do this configurable
+            // Count of forecast days
             final int numDays = 14;
 
             return Uri.parse(FORECAST_BASE_URL).buildUpon()
@@ -68,61 +54,6 @@ public final class BuildUtils {
                     .build().toString();
         }
         return null;
-    }
-
-    /**
-     * Take the String representing the complete forecast in JSON Format and
-     * pull out the data we need to construct the Strings needed for the wireframes.
-     * Fortunately parsing is easy:  constructor takes the JSON string and converts it
-     * into an Object hierarchy for us.
-     *
-     * @param forecastJsonStr JSON string from server
-     * @return weather data like string array
-     * @throws JSONException
-     */
-    public static String[] buildWeatherDataFromJson(String forecastJsonStr) throws JSONException {
-        JSONObject forecastJson = new JSONObject(forecastJsonStr);
-        JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
-
-        final Calendar calendar = new GregorianCalendar();
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, MMM d", Locale.getDefault());
-
-        String[] resultStrs = new String[weatherArray.length()];
-        for (int i = 0; i < weatherArray.length(); i++) {
-            JSONObject dayForecast = weatherArray.getJSONObject(i);
-
-            String day = simpleDateFormat.format(calendar.getTime());
-            calendar.add(GregorianCalendar.DATE, 1);
-
-            // Whether it is array which should contain minimum one element. So we don't have check for length here.
-            JSONObject weatherObject = dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
-            String description = weatherObject.getString(OWM_DESCRIPTION);
-
-            JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-            double high = temperatureObject.getDouble(OWM_MAX);
-            double low = temperatureObject.getDouble(OWM_MIN);
-
-            String highAndLow = formatHighLows(high, low);
-
-            // For now, using the format "Day, description, hi/low"
-            resultStrs[i] = day + " - " + description + " - " + highAndLow;
-        }
-        return resultStrs;
-    }
-
-    /**
-     * Prepare the weather high/lows for presentation.
-     *
-     * @param high high double value
-     * @param low  low double value
-     * @return representable string with high/low temperatures
-     */
-    private static String formatHighLows(double high, double low) {
-        // For presentation, assume the user doesn't care about tenths of a degree.
-        long roundedHigh = Math.round(high);
-        long roundedLow = Math.round(low);
-
-        return roundedHigh + "/" + roundedLow;
     }
 
 }
