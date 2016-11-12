@@ -2,12 +2,15 @@ package org.training.max.sunshine;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,19 +21,11 @@ import android.widget.TextView;
  */
 public class DetailActivity extends AppCompatActivity {
 
-    private ShareActionProvider mShareActionProvider;
-
     /**
      * Default constructor
      */
     public DetailActivity() {
         // This constructor is intentionally empty. Nothing special is needed here.
-    }
-
-    private void setShareIntent(Intent shareIntent) {
-        if (mShareActionProvider != null) {
-            mShareActionProvider.setShareIntent(shareIntent);
-        }
     }
 
     @Override
@@ -47,12 +42,6 @@ public class DetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.detail, menu);
-
-        // Locate MenuItem with ShareActionProvider
-        MenuItem item = menu.findItem(R.id.action_share);
-        // Fetch and store ShareActionProvider
-        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-
         return true;
     }
 
@@ -77,11 +66,34 @@ public class DetailActivity extends AppCompatActivity {
      */
     public static class DetailFragment extends Fragment {
 
+        private static final String LOG_TAG = DetailFragment.class.getSimpleName();
+        private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
+
+        private String mForecastStr;
+
         /**
          * Default constructor
          */
         public DetailFragment() {
             // This constructor is intentionally empty. Nothing special is needed here.
+        }
+
+        private Intent createShareIntent() {
+            String textForSend = mForecastStr + FORECAST_SHARE_HASHTAG;
+
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, textForSend);
+            sendIntent.setType("text/plain");
+
+            return sendIntent;
+        }
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setHasOptionsMenu(true);
         }
 
         @Override
@@ -90,12 +102,30 @@ public class DetailActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
             if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-                String forecastString = intent.getStringExtra(Intent.EXTRA_TEXT);
+                mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
                 TextView textViewForecast = (TextView) rootView.findViewById(R.id.detail_textview);
-                textViewForecast.setText(forecastString);
+                textViewForecast.setText(mForecastStr);
             }
 
             return rootView;
         }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.detailfragment, menu);
+
+            // Locate MenuItem with ShareActionProvider
+            MenuItem item = menu.findItem(R.id.action_share);
+
+            // Fetch and store ShareActionProvider
+            ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(createShareIntent());
+            } else {
+                Log.d(LOG_TAG, "Share Action Provider is null?");
+            }
+        }
+
     }
 }
